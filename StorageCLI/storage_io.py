@@ -1,5 +1,6 @@
 import click
 import requests
+import os
 
 from StorageCLI.validator import *
 
@@ -42,7 +43,7 @@ def content(ctx, organization, token):
               default=10,
               help="")
 @click.pass_context
-def enlist(ctx, page, size):
+def ls(ctx, page, size):
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
