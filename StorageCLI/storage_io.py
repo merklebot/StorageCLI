@@ -1,8 +1,11 @@
 import click
 import requests
-import os
+from platformdirs import user_config_path
+import json
 
 from StorageCLI.validator import *
+from StorageCLI.CustomComponents.OptionalPrompt import OptionPromptNull
+from StorageCLI.config import *
 
 
 @click.group()
@@ -10,19 +13,54 @@ def cli():
     pass
 
 
+# Group of config related commands
 @cli.group()
+def config():
+    pass
+
+
+@config.command()
+def info():
+    click.echo(f'Config is stored at {config_file}')
+
+
+@config.command()
 @click.option('-o', '--organization', 'organization',
               type=str,
-              envvar="STORAGECLI_ORGANIZATION",
-              required=True,
               prompt=True,
               help="Name of organization at app.merklebot.com")
 @click.option('-t', '--bucket-token', 'token',
               type=str,
-              envvar="STORAGECLI_BUCKET_TOKEN",
-              callback=token_validation,
-              required=True,
               prompt=True,
+              hidden=True,
+              help="Token of bucket at app.merklebot.com")
+def init(organization, token):
+    write_config(organization, token)
+    click.echo("Config inited")
+
+
+@config.command()
+def clear():
+    clear_config()
+    click.echo("Config cleared")
+
+
+# Group of storage related commands
+@cli.group()
+@click.option('-o', '--organization', 'organization',
+              type=str,
+              envvar="STORAGECLI_ORGANIZATION",
+              prompt=True,
+              cls=OptionPromptNull,
+              default=lambda: read_organization_name(),
+              help="Name of organization at app.merklebot.com")
+@click.option('-t', '--bucket-token', 'token',
+              type=str,
+              envvar="STORAGECLI_BUCKET_TOKEN",
+              prompt=True,
+              hidden=True,
+              cls=OptionPromptNull,
+              default=lambda: read_token(),
               help="Token of bucket at app.merklebot.com")
 @click.pass_context
 def content(ctx, organization, token):
@@ -55,7 +93,7 @@ def ls(ctx, page, size):
         "size": size
     })
 
-    click.echo(rqst.json())
+    click.echo(json.dumps(rqst.json(), indent=2))
 
 
 @content.command()
@@ -71,7 +109,7 @@ def get(ctx, content_id):
         "Authorization": token,
     })
 
-    click.echo(rqst.json())
+    click.echo(json.dumps(rqst.json(), indent=2))
     return rqst.json()
 
 
@@ -88,7 +126,7 @@ def delete(ctx, content_id):
         "Authorization": token,
     })
 
-    click.echo(rqst.json())
+    click.echo(json.dumps(rqst.json(), indent=2))
 
 
 @content.command()
@@ -107,7 +145,7 @@ def add(ctx, filepath):
         "Authorization": token,
     }, files=files)
 
-    click.echo(rqst.json())
+    click.echo(json.dumps(rqst.json(), indent=2))
 
 
 @content.command()
@@ -123,7 +161,7 @@ def get_link(ctx, content_id):
         "Authorization": token,
     })
 
-    click.echo(rqst.json())
+    click.echo(json.dumps(rqst.json(), indent=2))
 
 
 @content.command()
@@ -175,4 +213,4 @@ def restore(ctx, content_id, restore_days, web_hook):
         "Authorization": token,
     }, json=json_data)
 
-    click.echo(rqst.json())
+    click.echo(json.dumps(rqst.json(), indent=2))
