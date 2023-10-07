@@ -1,8 +1,9 @@
 [tool.poetry]
 name = "storagecli"
-version = "0.1.0"
+version = "0.1.1"
 description = "CLI for Storage at app.merklebot.com"
 authors = ["Arseniy Popov <arseniy@merklebot.com>"]
+license = "MIT"
 readme = "README.md"
 packages = [
     { include = "StorageCLI" },
