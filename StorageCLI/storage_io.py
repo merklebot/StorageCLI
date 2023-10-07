@@ -7,7 +7,7 @@ from StorageCLI.validator import *
 from StorageCLI.CustomComponents.OptionalPrompt import OptionPromptNull
 from StorageCLI.config import *
 from StorageCLI.exceptions import check_response_for_error
-
+from StorageCLI.utils import download_with_progressbar
 
 @click.group()
 def cli():
@@ -182,11 +182,10 @@ def get_link(ctx, content_id):
                 required=True)
 @click.argument('dest_file',
                 required=True,
-                type=click.Path(),
-                help="Destination filepath (with extension)")
+                type=click.Path())
 @click.pass_context
 def download(ctx, content_id, dest_file):
-    """Download file directly to local storage"""
+    """Download file directly to local storage with destination filepath"""
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
@@ -197,8 +196,7 @@ def download(ctx, content_id, dest_file):
 
     check_response_for_error(rqst)
     download_url = rqst.json().get("url")
-    with open(dest_file, "wb") as f:
-        f.write(requests.get(download_url).content)
+    download_with_progressbar(download_url, dest_file)
 
 
 @content.command()
