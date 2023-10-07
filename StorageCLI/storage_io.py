@@ -6,6 +6,7 @@ import json
 from StorageCLI.validator import *
 from StorageCLI.CustomComponents.OptionalPrompt import OptionPromptNull
 from StorageCLI.config import *
+from StorageCLI.exceptions import check_response_for_error
 
 
 @click.group()
@@ -92,7 +93,7 @@ def ls(ctx, page, size):
         "page": page,
         "size": size
     })
-
+    check_response_for_error(rqst)
     click.echo(json.dumps(rqst.json(), indent=2))
 
 
@@ -109,6 +110,7 @@ def get(ctx, content_id):
         "Authorization": token,
     })
 
+    check_response_for_error(rqst)
     click.echo(json.dumps(rqst.json(), indent=2))
     return rqst.json()
 
@@ -126,6 +128,7 @@ def delete(ctx, content_id):
         "Authorization": token,
     })
 
+    check_response_for_error(rqst)
     click.echo(json.dumps(rqst.json(), indent=2))
 
 
@@ -145,6 +148,7 @@ def add(ctx, filepath):
         "Authorization": token,
     }, files=files)
 
+    check_response_for_error(rqst)
     click.echo(json.dumps(rqst.json(), indent=2))
 
 
@@ -161,6 +165,7 @@ def get_link(ctx, content_id):
         "Authorization": token,
     })
 
+    check_response_for_error(rqst)
     click.echo(json.dumps(rqst.json(), indent=2))
 
 
@@ -180,6 +185,7 @@ def download(ctx, content_id, dest_file):
         "Authorization": token,
     })
 
+    check_response_for_error(rqst)
     download_url = rqst.json().get("url")
     with open(dest_file, "wb") as f:
         f.write(requests.get(download_url).content)
@@ -213,4 +219,5 @@ def restore(ctx, content_id, restore_days, web_hook):
         "Authorization": token,
     }, json=json_data)
 
+    check_response_for_error(rqst)
     click.echo(json.dumps(rqst.json(), indent=2))

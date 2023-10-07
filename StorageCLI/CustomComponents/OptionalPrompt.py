@@ -4,7 +4,7 @@ import click
 class OptionPromptNull(click.Option):
     _value_key = '_default_val'
 
-    def get_default(self, ctx):
+    def get_default(self, ctx, call=False):
         if not hasattr(self, self._value_key):
             default = super(OptionPromptNull, self).get_default(ctx)
             setattr(self, self._value_key, default)
