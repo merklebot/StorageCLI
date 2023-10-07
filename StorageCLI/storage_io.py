@@ -22,6 +22,7 @@ def config():
 
 @config.command()
 def info():
+    """Shows config file location. Be aware, configs are stored in opened way."""
     click.echo(f'Config is stored at {config_file}')
 
 
@@ -36,12 +37,14 @@ def info():
               hidden=True,
               help="Token of bucket at app.merklebot.com")
 def init(organization, token):
+    """Put organization name and bucket token for future use"""
     write_config(organization, token)
     click.echo("Config inited")
 
 
 @config.command()
 def clear():
+    """Clear config files"""
     clear_config()
     click.echo("Config cleared")
 
@@ -75,14 +78,15 @@ def content(ctx, organization, token):
               type=int,
               required=False,
               default=1,
-              help="")
+              help="Number of page")
 @click.option('-s', '--size', 'size',
               type=int,
               required=False,
               default=10,
-              help="")
+              help="Number of files in page")
 @click.pass_context
 def ls(ctx, page, size):
+    """Enlist files contained in bucket with pagination"""
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
@@ -102,6 +106,7 @@ def ls(ctx, page, size):
                 required=True)
 @click.pass_context
 def get(ctx, content_id):
+    """Get info about file with id"""
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
@@ -120,6 +125,7 @@ def get(ctx, content_id):
                 required=True)
 @click.pass_context
 def delete(ctx, content_id):
+    """Delete file by content_id"""
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
@@ -138,6 +144,7 @@ def delete(ctx, content_id):
                 type=click.Path())
 @click.pass_context
 def add(ctx, filepath):
+    """Add file with filepath"""
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
@@ -157,6 +164,7 @@ def add(ctx, filepath):
                 required=True)
 @click.pass_context
 def get_link(ctx, content_id):
+    """Get direct link to download file by id"""
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
@@ -174,9 +182,11 @@ def get_link(ctx, content_id):
                 required=True)
 @click.argument('dest_file',
                 required=True,
-                type=click.Path())
+                type=click.Path(),
+                help="Destination filepath (with extension)")
 @click.pass_context
 def download(ctx, content_id, dest_file):
+    """Download file directly to local storage"""
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
@@ -194,16 +204,19 @@ def download(ctx, content_id, dest_file):
 @content.command()
 @click.option('-d', '--restore-days', 'restore_days',
               type=int,
-              required=True)
+              required=True,
+              help="Number of days content will be kept in instant access state")
 @click.option('-w', '--web-hook', 'web_hook',
               type=str,
               callback=web_hook_validation,
-              required=False
+              required=False,
+              help="URL. POST request will be send here as file change access status"
               )
 @click.argument('content_id',
                 required=True)
 @click.pass_context
 def restore(ctx, content_id, restore_days, web_hook):
+    """Restore file from cold storage for instant access"""
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
