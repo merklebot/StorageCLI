@@ -9,7 +9,7 @@ pip install storagecli
 
 # Authorization
 
-When you get your **ORGANIZATION NAME** and **BUCKET TOKEN** at [app.merklebot.com](https://app.merklebot.com), you could use them to authorize in 3 places, with priority from higher to lower:
+When you get your **ORGANIZATION NAME** (not ID!) and **BUCKET TOKEN** at [app.merklebot.com](https://app.merklebot.com), you could use them to authorize in 3 places, with priority from higher to lower:
 
 1. Direct insert in command as options
 2. Use with environmental variables `STORAGECLI_ORGANIZATION` and `STORAGECLI_BUCKET_TOKEN`

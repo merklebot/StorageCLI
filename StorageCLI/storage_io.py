@@ -125,7 +125,7 @@ def get(ctx, content_id):
                 required=True)
 @click.pass_context
 def delete(ctx, content_id):
-    """Delete file by content_id"""
+    """Delete file by id"""
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
