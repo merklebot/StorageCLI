@@ -1,13 +1,12 @@
 import click
 import requests
-from platformdirs import user_config_path
-import json
 
 from StorageCLI.validator import *
 from StorageCLI.CustomComponents.OptionalPrompt import OptionPromptNull
 from StorageCLI.config import *
 from StorageCLI.exceptions import check_response_for_error
-from StorageCLI.utils import download_with_progressbar
+
+from StorageCLI.sdk import list_content, get_content, delete_content, get_content_link, download_content, restore_content
 
 @click.group()
 def cli():
@@ -90,15 +89,9 @@ def ls(ctx, page, size):
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
-    url = f"https://{organization}.storage.api2.merklebot.com/contents/"
-    rqst = requests.get(url, headers={
-        "Authorization": token,
-    }, params={
-        "page": page,
-        "size": size
-    })
-    check_response_for_error(rqst)
-    click.echo(json.dumps(rqst.json(), indent=2))
+    rez = list_content(organization, token, page, size, cli_mode=True)
+
+    click.echo(json.dumps(rez, indent=2))
 
 
 @content.command()
@@ -110,14 +103,10 @@ def get(ctx, content_id):
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
-    url = f"https://{organization}.storage.api2.merklebot.com/contents/{content_id}"
-    rqst = requests.get(url, headers={
-        "Authorization": token,
-    })
+    rez = get_content(organization, token, content_id, cli_mode=True)
 
-    check_response_for_error(rqst)
-    click.echo(json.dumps(rqst.json(), indent=2))
-    return rqst.json()
+    click.echo(json.dumps(rez, indent=2))
+
 
 
 @content.command()
@@ -129,13 +118,9 @@ def delete(ctx, content_id):
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
-    url = f"https://{organization}.storage.api2.merklebot.com/contents/{content_id}"
-    rqst = requests.delete(url, headers={
-        "Authorization": token,
-    })
+    rez = delete_content(organization, token, content_id, cli_mode=True)
 
-    check_response_for_error(rqst)
-    click.echo(json.dumps(rqst.json(), indent=2))
+    click.echo(json.dumps(rez, indent=2))
 
 
 @content.command()
@@ -168,13 +153,9 @@ def get_link(ctx, content_id):
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
-    url = f"https://{organization}.storage.api2.merklebot.com/contents/{content_id}/download"
-    rqst = requests.get(url, headers={
-        "Authorization": token,
-    })
+    rez = get_content_link(organization, token, content_id, cli_mode=True)
 
-    check_response_for_error(rqst)
-    click.echo(json.dumps(rqst.json(), indent=2))
+    click.echo(json.dumps(rez, indent=2))
 
 
 @content.command()
@@ -189,14 +170,7 @@ def download(ctx, content_id, dest_file):
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
-    url = f"https://{organization}.storage.api2.merklebot.com/contents/{content_id}/download"
-    rqst = requests.get(url, headers={
-        "Authorization": token,
-    })
-
-    check_response_for_error(rqst)
-    download_url = rqst.json().get("url")
-    download_with_progressbar(download_url, dest_file)
+    download_content(organization, token, content_id, dest_file, cli_mode=True)
 
 
 @content.command()
@@ -218,17 +192,6 @@ def restore(ctx, content_id, restore_days, web_hook):
     organization = ctx.obj["ORGANIZATION"]
     token = ctx.obj["TOKEN"]
 
-    json_data = {
-        'restoreDays': restore_days,
-    }
+    rez = restore_content(organization, token, content_id, restore_days, web_hook, cli_mode=True)
 
-    if web_hook:
-        json_data["webhookUrl"] = web_hook
-
-    url = f"https://{organization}.storage.api2.merklebot.com/contents/{content_id}/restore"
-    rqst = requests.post(url, headers={
-        "Authorization": token,
-    }, json=json_data)
-
-    check_response_for_error(rqst)
-    click.echo(json.dumps(rqst.json(), indent=2))
+    click.echo(json.dumps(rez, indent=2))
